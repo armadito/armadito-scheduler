@@ -1,0 +1,13 @@
+Revision history for Perl extension Armadito::Scheduler.
+
+0.0.2_01 28/06/2016
+	- Set as a developer version
+
+0.0.2  28/06/2016
+	- Add basic module stuff.
+    - Add license GPLv2+.
+
+0.0.1  28/06/2016
+	- original version; created by h2xs 1.23 with options
+		-XAn Armadito::Scheduler -b 5.8.0
+
