@@ -3,23 +3,25 @@ package Armadito::Scheduler::Task;
 use strict;
 use warnings;
 
+use Armadito::Scheduler::Logger;
+
 sub new {
-    my ( $class, %params ) = @_;
+	my ( $class, %params ) = @_;
 
-    my $self = {
-        logger => $params{logger} || Armadito::Scheduler::Logger->new(),
-        config => $params{config},
-        agent  => $params{agent}
-    };
+	my $self = {
+		logger => $params{logger} || Armadito::Scheduler::Logger->new(),
+		config => $params{config},
+		agent  => $params{agent}
+	};
 
-    bless $self, $class;
-    return $self;
+	bless $self, $class;
+	return $self;
 }
 
 sub run {
-    my ( $self, %params ) = @_;
+	my ( $self, %params ) = @_;
 
-    return $self;
+	return $self;
 }
 
 1;

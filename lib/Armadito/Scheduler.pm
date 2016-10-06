@@ -4,11 +4,14 @@ use 5.008000;
 use strict;
 use warnings;
 use English qw(-no_match_vars);
+use UNIVERSAL::require;
 
 require Exporter;
 
 use Armadito::Scheduler::Config;
 use Armadito::Scheduler::Logger qw (LOG_DEBUG LOG_INFO LOG_DEBUG2);
+use Armadito::Scheduler::Daemon::Linux;
+use Armadito::Scheduler::Daemon::Win32;
 
 our $VERSION = '0.0.2_01';
 
@@ -48,12 +51,25 @@ sub init {
 		backends  => $self->{config}->{logger},
 		verbosity => $verbosity
 	);
+
+	$self->{OS_prefix}
+		= $OSNAME eq 'MSWin32'
+		? "Win32"
+		: "Linux";
+
+	my $class = "Armadito::Scheduler::Daemon::$self->{OS_prefix}";
+	$class->require();
+	$self->{daemon} = $class->new(
+		config => $self->{config},
+		logger => $self->{logger}
+	);
 }
 
 sub run {
 	my ( $self, %params ) = @_;
 
 	$self->{logger}->info("Go Scheduler!");
+	$self->{daemon}->run();
 }
 
 1;

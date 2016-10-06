@@ -1,7 +1,9 @@
-package Armadito::Scheduler::Daemon::Linux;
+package Armadito::Scheduler::Daemon;
 
 use strict;
 use warnings;
+
+use Armadito::Scheduler::Logger;
 
 sub new {
 	my ( $class, %params ) = @_;

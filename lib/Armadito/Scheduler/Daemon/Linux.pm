@@ -14,6 +14,15 @@ sub new {
 
 sub run {
 	my ( $self, %params ) = @_;
+	$self = $self->SUPER::run(%params);
+
+	my $parent_pid = $$;
+	my $pid        = fork();
+
+	if ( $pid == 0 ) {
+		$self->{logger}->info("Parent process PID : $parent_pid !");
+		$self->{logger}->info("Forked process PID : $$ !");
+	}
 
 	return $self;
 }
