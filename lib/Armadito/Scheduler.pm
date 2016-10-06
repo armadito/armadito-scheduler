@@ -55,7 +55,7 @@ __END__
 
 =head1 NAME
 
-Armadito::Scheduler - An equitable repartition task scheduling solution.
+Armadito::Scheduler - An equitable time distribution task scheduling solution
 
 =head1 DESCRIPTION
 
