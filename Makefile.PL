@@ -10,7 +10,7 @@ version_from 'lib/Armadito/Scheduler.pm';
 perl_version '5.008';
 authors 'Teclib';
 
-requires 'Armadito::Agent'  => '0.0.3';
+requires 'Armadito::Agent'  => '0.1.0';
 
 # install_script 'bin/armadito-scheduler';
 
