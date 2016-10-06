@@ -9,13 +9,27 @@ sub new {
 	my ( $class, %params ) = @_;
 
 	my $self = {
-		logger => $params{logger} || Armadito::Scheduler::Logger->new(),
-		config => $params{config},
-		agent  => $params{agent}
+        name    => $params{name},
+        cmd     => $params{cmd},
+        freq    => $params{freq},
+        timeout => $params{timeout},
+        user    => $params{user},
+        logger  => undef,
+        config  => undef
 	};
 
 	bless $self, $class;
 	return $self;
+}
+
+sub setLogger {
+	my ( $self, $logger ) = @_;
+    $self->{logger} = $logger;
+}
+
+sub setConfig {
+	my ( $self, $config ) = @_;
+    $self->{config} = $config;
 }
 
 sub run {
@@ -45,3 +59,11 @@ Run the task.
 =head2 new ( $self, %params )
 
 Instanciate Task. Set task's default logger.
+
+=head2 setLogger ( $self, $logger )
+
+Set task's logger.
+
+=head2 setConfig ( $self, $config )
+
+Set task's config.
