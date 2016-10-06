@@ -55,12 +55,43 @@ __END__
 
 =head1 NAME
 
-Armadito::Scheduler - Task scheduler solution for armadito-agent
+Armadito::Scheduler - An equitable repartition task scheduling solution.
 
 =head1 DESCRIPTION
 
 This is an experimental task scheduling solution. 
 It has been conceived in order to have an equitable repartition of tasks in time.
+
+=head1 METHODS
+
+=head2 new(%params)
+
+The constructor. The following parameters are allowed, as keys of the %params
+hash:
+
+=over
+
+=item I<confdir>
+
+the configuration directory.
+
+=item I<datadir>
+
+the read-only data directory.
+
+=item I<vardir>
+
+the read-write data directory.
+
+=item I<options>
+
+the options to use.
+
+=back
+
+=head2 init()
+
+Initialize the agent.
 
 =head1 SEE ALSO
 
