@@ -3,12 +3,15 @@ package Armadito::Scheduler::Daemon::Linux;
 use strict;
 use warnings;
 
-use base 'Armadito::Scheduler::Daemon';
-
 sub new {
 	my ( $class, %params ) = @_;
-	my $self = $class->SUPER::new(%params);
 
+	my $self = {
+		logger => $params{logger} || Armadito::Scheduler::Logger->new(),
+		config => $params{config}
+	};
+
+	bless $self, $class;
 	return $self;
 }
 
@@ -23,7 +26,7 @@ __END__
 
 =head1 NAME
 
-Armadito::Scheduler::Daemon::Linux - Daemon implementation for Linux.
+Armadito::Scheduler::Daemon - Daemon base class.
 
 =head1 DESCRIPTION
 
