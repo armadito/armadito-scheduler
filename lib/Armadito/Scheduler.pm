@@ -6,78 +6,59 @@ use warnings;
 
 require Exporter;
 
-our @ISA = qw(Exporter);
+our $VERSION = '0.0.2_01';
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
+sub new {
+	my ( $class, %params ) = @_;
 
-# This allows declaration	use Armadito::Scheduler ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
+	my $self = {
+		status  => 'unknown',
+		confdir => $params{confdir},
+		datadir => $params{datadir},
+		libdir  => $params{libdir},
+		vardir  => $params{vardir},
+		sigterm => $params{sigterm},
+		targets => [],
+		tasks   => []
+	};
+	bless $self, $class;
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
-our $VERSION = '0.02_01';
-
-# Preloaded methods go here.
+	return $self;
+}
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-Armadito::Scheduler - Perl extension for blah blah blah
-
-=head1 SYNOPSIS
-
-  use Armadito::Scheduler;
-  blah blah blah
+Armadito::Scheduler - Task scheduler solution for armadito-agent
 
 =head1 DESCRIPTION
 
-Stub documentation for Armadito::Scheduler, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
-=head2 EXPORT
-
-None by default.
-
-
+This is an experimental task scheduling solution. 
+It has been conceived in order to have an equitable repartition of tasks in time.
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
+=over 4
 
-If you have a mailing list set up for your module, mention it here.
+=item * L<https://github.com/armadito>
 
-If you have a web site set up for your module, mention it here.
+Armadito organization on github.
+
+=back
 
 =head1 AUTHOR
 
-vhamon, E<lt>vhamon@E<gt>
+vhamon, E<lt>vhamon@teclib.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016 by vhamon
+Copyright (C) 2016 Teclib'
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.22.1 or,
-at your option, any later version of Perl 5 you may have available.
+=head1 LICENSE
 
+This software is licensed under the terms of GPLv3, see COPYING file for
+details.
 
 =cut
