@@ -20,8 +20,9 @@ sub run {
 	my $pid        = fork();
 
 	if ( $pid == 0 ) {
-		$self->{logger}->info("Parent process PID : $parent_pid !");
-		$self->{logger}->info("Forked process PID : $$ !");
+		$self->{logger}->debug2("Parent process PID : $parent_pid !");
+		$self->{logger}->debug2("Forked process PID : $$ !");
+
 		$self->waitUntilZeroSlot();
 		$self->{logger}->info("ZERO SLOT");
 	}

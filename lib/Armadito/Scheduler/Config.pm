@@ -7,6 +7,8 @@ use English qw(-no_match_vars);
 use File::Spec;
 use Getopt::Long;
 use UNIVERSAL::require;
+use Armadito::Scheduler::Task;
+use Armadito::Scheduler::Tools::File qw( readFile );
 
 my $default = {
 	'conf-reload-interval' => 0,
@@ -15,7 +17,8 @@ my $default = {
 	'logfile'              => undef,
 	'logfacility'          => 'LOG_USER',
 	'logfile-maxsize'      => undef,
-	'stdout'               => undef
+	'stdout'               => undef,
+	'tasks'                => []
 };
 
 my $deprecated = {};
@@ -139,29 +142,82 @@ sub _loadFromFile {
 		die "no configuration file";
 	}
 
-	my $handle;
-	die "Config: Failed to open $file: $ERRNO" if ( !open $handle, '<', $file );
+	my $conf = readFile( filepath => $file );
+	$self->_parseConfFile($conf);
+}
 
-	while ( my $line = <$handle> ) {
-		$line =~ s/#.+//;
-		if ( $line =~ /([\w-]+)\s*=\s*(.+)/ ) {
-			my $key = $1;
-			my $val = $2;
+sub _parseConfFile {
+	my ( $self, $conf ) = @_;
 
-			# Remove the quotes
-			$val =~ s/\s+$//;
-			$val =~ s/^'(.*)'$/$1/;
-			$val =~ s/^"(.*)"$/$1/;
+	my @lines = split( /\n+/ms, $conf );
+	my $i = 0;
+	while ( defined( $lines[$i] ) ) {
+		$lines[$i] =~ s/^\s*#.+//;
 
+		if ( $lines[$i] =~ /^\s*{/ ) {
+			$i = $self->_parseTaskConfBlock( \@lines, $i );
+		}
+		else {
+			my ( $key, $val ) = $self->_parseConfLine( $lines[$i] );
 			if ( exists $default->{$key} ) {
 				$self->{$key} = $val;
 			}
-			else {
-				warn "unknown configuration directive $key";
-			}
+			$i++;
 		}
 	}
-	close $handle;
+}
+
+sub _parseTaskConfBlock {
+	my ( $self, $reflines, $block_offset ) = @_;
+
+	my @lines = @{$reflines};
+	my $task  = {};
+	my $i     = $block_offset;
+
+	while ( $lines[$i] !~ /^\s*}/ ) {
+		my ( $key, $val ) = $self->_parseConfLine( $lines[$i] );
+
+		if ( $key =~ /^task\./ ) {
+			$task->{$key} = $val;
+		}
+		$i++;
+	}
+
+	$self->_addNewTask($task);
+	return ( $i + 1 );
+}
+
+sub _addNewTask {
+	my ( $self, $task ) = @_;
+
+	my $SchedulerTask = new Armadito::Scheduler::Task(
+		name    => $task->{name},
+		cmd     => $task->{cmd},
+		freq    => $task->{freq},
+		timeout => $task->{timeout},
+		user    => $task->{user}
+	);
+
+	push( @{ $self->{tasks} }, $SchedulerTask );
+}
+
+sub _parseConfLine {
+	my ( $self, $line ) = @_;
+
+	my $key = "";
+	my $val = "";
+
+	if ( $line =~ /([\w-]+)\s*=\s*(.+)/ ) {
+		$key = $1;
+		$val = $2;
+
+		# Remove the quotes and trailing whitespaces
+		$val =~ s/\s+$//;
+		$val =~ s/^'(.*)'$/$1/;
+		$val =~ s/^"(.*)"$/$1/;
+	}
+
+	return ( $key, $val );
 }
 
 sub _checkContent {
