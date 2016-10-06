@@ -132,10 +132,10 @@ sub install {
 
 config_install :
 	install -d -m 755 $(DESTDIR)$(SYSCONFDIR)
-	if [ -f $(DESTDIR)/$(SYSCONFDIR)/agent.cfg ]; then \
-	    install -m 644 etc/agent.cfg $(DESTDIR)$(SYSCONFDIR)/agent.cfg.new; \
+	if [ -f $(DESTDIR)/$(SYSCONFDIR)/scheduler.cfg ]; then \
+	    install -m 644 etc/scheduler.cfg $(DESTDIR)$(SYSCONFDIR)/scheduler.cfg.new; \
 	else \
-	    install -m 644 etc/agent.cfg $(DESTDIR)$(SYSCONFDIR)/agent.cfg; \
+	    install -m 644 etc/scheduler.cfg $(DESTDIR)$(SYSCONFDIR)/scheduler.cfg; \
 	fi
 
 data_install :
