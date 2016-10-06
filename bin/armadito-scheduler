@@ -1,0 +1,155 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use lib './lib';
+
+use English qw(-no_match_vars) ;
+use Getopt::Long;
+use Pod::Usage;
+use UNIVERSAL::require;
+use IPC::System::Simple qw(capture);
+use Data::Dumper;
+use Try::Tiny;
+
+our $VERSION = 0.1;
+
+use Armadito::Scheduler;
+use Armadito::Scheduler::Task;
+
+my $options = {};
+
+if( !$ARGV[0] ){ pod2usage(-verbose => 0, -exitstatus => 0) }
+
+GetOptions(
+    $options,
+	'conf-file=s',
+	'conf-reload-interval=i',
+	'config=s',
+	'setup',
+	'help|h',
+	'version|v',
+    'debug|d=i',
+) or pod2usage(-verbose => 0);
+
+if( $options->{help} ){ pod2usage(-verbose => 0, -exitstatus => 0) }
+
+if ($options->{version}) {
+    print "armadito-scheduler $Armadito::Scheduler::VERSION\n";
+    exit 0;
+}
+
+my %setup = (
+    confdir => './etc',
+    datadir => './share',
+    libdir  => './lib',
+    vardir  => './var',
+);
+
+if ($options->{setup}) {
+    foreach my $key (keys %setup) {
+        print "$key: $setup{$key}\n";
+    }
+    exit 0;
+}
+
+if ($options->{'conf-file'}) {
+    if ($options->{config}) {
+        if ($options->{config} ne 'file') {
+            print STDERR
+                "don't use --conf-file with $options->{config} backend";
+            exit 1;
+        }
+    } else {
+        $options->{config} = 'file';
+    }
+}
+
+my $agent = Armadito::Scheduler->new(%setup);
+my $config = {};
+
+try {
+	$agent->init(options => $options);
+} catch {
+    print STDERR "Execution failure:\n";
+    print STDERR $_;
+    exit(1);
+};
+
+exit(0);
+__END__
+
+=head1 NAME
+
+armadito-scheduler - command line interface script used for Armadito Scheduler.
+
+=head1 SYNOPSIS
+
+armadito-scheduler --server <server> --task <task>
+
+  Options:
+    --help                 this menu
+    --debug|d  level       Activate debug mode with given level (0,1,2)
+
+  Configuration options:
+    --config=BACKEND                   configuration backend
+    --conf-file=FILE                   configuration file
+    --conf-reload-interval=<SECONDS>   number of seconds between two
+                                         configuration reloadings
+
+=head1 EXAMPLES
+
+	% armadito-scheduler --debug 0
+
+=head1 DESCRIPTION
+
+F<armadito-scheduler> is the command line interface for Armadito Scheduler.
+
+=head1 OPTIONS
+
+Some options are available in a I<short> form and a I<long> form.  For
+example, the two lines below are all equivalent:
+
+    % armadito-scheduler -d 1
+    % armadito-scheduler --debug 1
+
+=back
+
+=head2 Configuration options
+
+=over
+
+=item B<--config>=I<BACKEND>
+
+Configuration backend to use.
+
+The available backends are:
+
+=over 4
+
+=item
+
+file: read configuration from a file (default anywhere else as Windows).
+
+=item
+
+registry: read configuration from the registry (default on Windows).
+
+=item
+
+none: don't read any configuration.
+
+=back
+
+=item B<--conf-file>=I<FILE>
+
+Use I<FILE> as configuration file (implies file configuration backend).
+
+=item B<--conf-reload-interval>=I<SECONDS>
+
+SECONDS is the number of seconds between two configuration reloadings.
+Default value is 0, which means that configuration is never reloaded.
+Minimum value is 60. If given value is less than this minimum, it is set to
+this minimum. If given value is less than 0, it is set to 0.
+
+=back

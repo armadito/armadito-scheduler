@@ -12,7 +12,7 @@ authors 'Teclib';
 
 requires 'Armadito::Agent'  => '0.1.0';
 
-# install_script 'bin/armadito-scheduler';
+install_script 'bin/armadito-scheduler';
 
 resources
     homepage    => "http://www.teclib-edition.com/en/teclib-products/armadito-antivirus/",
