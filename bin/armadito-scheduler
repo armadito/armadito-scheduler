@@ -29,6 +29,7 @@ GetOptions(
 	'setup',
 	'help|h',
 	'version|v',
+    'run',
     'debug|d=i',
 ) or pod2usage(-verbose => 0);
 
@@ -70,6 +71,10 @@ my $config = {};
 
 try {
 	$scheduler->init(options => $options);
+
+    if($options->{run}){
+        $scheduler->run();
+    }
 } catch {
     print STDERR "Execution failure:\n";
     print STDERR $_;
@@ -85,11 +90,12 @@ armadito-scheduler - command line interface script used for Armadito Scheduler.
 
 =head1 SYNOPSIS
 
-armadito-scheduler --server <server> --task <task>
+armadito-scheduler --run
 
   Options:
     --help                 this menu
     --debug|d  level       Activate debug mode with given level (0,1,2)
+    --run                  Run scheduler
 
   Configuration options:
     --config=BACKEND                   configuration backend

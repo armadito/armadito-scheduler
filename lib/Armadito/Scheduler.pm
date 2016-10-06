@@ -13,41 +13,47 @@ use Armadito::Scheduler::Logger qw (LOG_DEBUG LOG_INFO LOG_DEBUG2);
 our $VERSION = '0.0.2_01';
 
 sub new {
-    my ( $class, %params ) = @_;
+	my ( $class, %params ) = @_;
 
-    my $self = {
-        status  => 'unknown',
-        confdir => $params{confdir},
-        datadir => $params{datadir},
-        libdir  => $params{libdir},
-        vardir  => $params{vardir},
-        sigterm => $params{sigterm},
-        targets => [],
-        tasks   => []
-    };
-    bless $self, $class;
+	my $self = {
+		status  => 'unknown',
+		confdir => $params{confdir},
+		datadir => $params{datadir},
+		libdir  => $params{libdir},
+		vardir  => $params{vardir},
+		sigterm => $params{sigterm},
+		targets => [],
+		tasks   => []
+	};
+	bless $self, $class;
 
-    return $self;
+	return $self;
 }
 
 sub init {
-    my ( $self, %params ) = @_;
+	my ( $self, %params ) = @_;
 
-    $self->{config} = Armadito::Scheduler::Config->new(
-        confdir => $self->{confdir},
-        options => $params{options}
-    );
+	$self->{config} = Armadito::Scheduler::Config->new(
+		confdir => $self->{confdir},
+		options => $params{options}
+	);
 
-    my $verbosity =
-        $self->{config}->{debug} && $self->{config}->{debug} == 1 ? LOG_DEBUG
-      : $self->{config}->{debug} && $self->{config}->{debug} == 2 ? LOG_DEBUG2
-      :                                                             LOG_INFO;
+	my $verbosity
+		= $self->{config}->{debug} && $self->{config}->{debug} == 1 ? LOG_DEBUG
+		: $self->{config}->{debug} && $self->{config}->{debug} == 2 ? LOG_DEBUG2
+		:                                                             LOG_INFO;
 
-    $self->{logger} = Armadito::Scheduler::Logger->new(
-        config    => $self->{config},
-        backends  => $self->{config}->{logger},
-        verbosity => $verbosity
-    );
+	$self->{logger} = Armadito::Scheduler::Logger->new(
+		config    => $self->{config},
+		backends  => $self->{config}->{logger},
+		verbosity => $verbosity
+	);
+}
+
+sub run {
+	my ( $self, %params ) = @_;
+
+	$self->{logger}->info("Go Scheduler!");
 }
 
 1;
@@ -92,6 +98,10 @@ the options to use.
 =head2 init()
 
 Initialize the agent.
+
+=head2 run()
+
+Run scheduler immediatly.
 
 =head1 SEE ALSO
 
