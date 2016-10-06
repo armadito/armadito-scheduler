@@ -22,6 +22,8 @@ sub run {
 	if ( $pid == 0 ) {
 		$self->{logger}->info("Parent process PID : $parent_pid !");
 		$self->{logger}->info("Forked process PID : $$ !");
+		$self->waitUntilZeroSlot();
+		$self->{logger}->info("ZERO SLOT");
 	}
 
 	return $self;

@@ -2,7 +2,7 @@ package Armadito::Scheduler::Daemon;
 
 use strict;
 use warnings;
-
+use Time::HiRes qw(usleep gettimeofday tv_interval sleep);
 use Armadito::Scheduler::Logger;
 
 sub new {
@@ -13,6 +13,8 @@ sub new {
 		config => $params{config}
 	};
 
+	$self->{loop_duration} = 60;
+
 	bless $self, $class;
 	return $self;
 }
@@ -22,6 +24,18 @@ sub run {
 
 	return $self;
 }
+
+sub waitUntilZeroSlot {
+	my ($self) = @_;
+
+	my ( $now_sec, $now_micro ) = gettimeofday;
+	do {
+		sleep(0.01);
+		( $now_sec, $now_micro ) = gettimeofday;
+
+	} while ( $now_sec % $self->{loop_duration} );
+}
+
 1;
 
 __END__
@@ -43,3 +57,9 @@ Run the daemon.
 =head2 new ( $self, %params )
 
 Instanciate Daemon. Set daemon's default logger.
+
+=head2 waitUntilZeroSlot ()
+
+Wait until the initial slot of an execution loop.
+If loop_duration is equals to 60 (seconds), it means that slot "zero" is at 00 seconds of each minutes :
+ - 14:00:00 14:01:00 ... 14:35:00 ...
