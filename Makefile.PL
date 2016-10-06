@@ -10,27 +10,29 @@ version_from 'lib/Armadito/Scheduler.pm';
 perl_version '5.008';
 authors 'Teclib';
 
-requires 'Armadito::Agent'  => '0.1.0';
+requires 'Armadito::Agent' => '0.1.0';
 
 install_script 'bin/armadito-scheduler';
 
 resources
-    homepage    => "http://www.teclib-edition.com/en/teclib-products/armadito-antivirus/",
-    bugtracker  => "https://github.com/armadito/armadito-scheduler/issues",
-    repository  => "https://github.com/armadito/armadito-scheduler",
-    IRC         => "http://webchat.freenode.net/#armadito";
+	homepage   => "http://www.teclib-edition.com/en/teclib-products/armadito-antivirus/",
+	bugtracker => "https://github.com/armadito/armadito-scheduler/issues",
+	repository => "https://github.com/armadito/armadito-scheduler",
+	IRC        => "http://webchat.freenode.net/#armadito";
 
 makemaker_args(
-    test => {
-        TESTS => join ' ', map { glob } qw(
-            t/*.t
-            t/*/*.t
-            t/*/*/*.t
-            t/*/*/*/*.t
-            t/*/*/*/*/*.t
-        )
-    },
-    INSTALLMAN3DIR => 'none'
+	test => {
+		TESTS => join ' ',
+		map {glob}
+			qw(
+			t/*.t
+			t/*/*.t
+			t/*/*/*.t
+			t/*/*/*/*.t
+			t/*/*/*/*/*.t
+			)
+	},
+	INSTALLMAN3DIR => 'none'
 );
 
 WriteAll;
@@ -41,9 +43,10 @@ $MY::variables{DATADIR} =~ s/\$\(PREFIX\)/$MY::variables{PREFIX}/;
 $MY::variables{LOCALSTATEDIR} =~ s/\$\(PREFIX\)/$MY::variables{PREFIX}/;
 
 # look for already existing configuration file
-my $config_file_message = -f "$MY::variables{SYSCONFDIR}/agent.cfg" ?
-    "previous configuration file found, new one will be installed as agent.cfg.new" :
-    "no previous configuration file found, new one will be installed as agent.cfg";
+my $config_file_message
+	= -f "$MY::variables{SYSCONFDIR}/scheduler.cfg"
+	? "previous configuration file found, new one will be installed as scheduler.cfg.new"
+	: "no previous configuration file found, new one will be installed as scheduler.cfg";
 
 print <<EOF;
 
@@ -65,70 +68,73 @@ our %variables;
 
 # force a perl-independant prefix for everything
 sub constants {
-    my ($self) = @_;
+	my ($self) = @_;
 
-    # for some reason, initialising variables from the global scope doesn't work
-    %variables = (
-        PREFIX               => '/usr/local',
-        INSTALLSCRIPT        => '$(PREFIX)/bin',
-        INSTALLSITESCRIPT    => '$(PREFIX)/bin',
-        INSTALLVENDORSCRIPT  => '$(PREFIX)/bin',
-        INSTALLLIB           => '$(DATADIR)/lib',
-        INSTALLSITELIB       => '$(DATADIR)/lib',
-        INSTALLVENDORLIB     => '$(DATADIR)/lib',
-        INSTALLMAN1DIR       => '$(PREFIX)/share/man/man1',
-        INSTALLSITEMAN1DIR   => '$(PREFIX)/share/man/man1',
-        INSTALLVENDORMAN1DIR => '$(PREFIX)/share/man/man1',
-        INSTALLMAN3DIR       => '$(PREFIX)/share/man/man3',
-        INSTALLSITEMAN3DIR   => '$(PREFIX)/share/man/man3',
-        INSTALLVENDORMAN3DIR => '$(PREFIX)/share/man/man3',
-        SYSCONFDIR           => '$(PREFIX)/etc/armadito-scheduler',
-        DATADIR              => '$(PREFIX)/share/armadito-scheduler',
-        LOCALSTATEDIR        => '$(PREFIX)/var/armadito-scheduler',
-    );
+	# for some reason, initialising variables from the global scope doesn't work
+	%variables = (
+		PREFIX               => '/usr/local',
+		INSTALLSCRIPT        => '$(PREFIX)/bin',
+		INSTALLSITESCRIPT    => '$(PREFIX)/bin',
+		INSTALLVENDORSCRIPT  => '$(PREFIX)/bin',
+		INSTALLLIB           => '$(DATADIR)/lib',
+		INSTALLSITELIB       => '$(DATADIR)/lib',
+		INSTALLVENDORLIB     => '$(DATADIR)/lib',
+		INSTALLMAN1DIR       => '$(PREFIX)/share/man/man1',
+		INSTALLSITEMAN1DIR   => '$(PREFIX)/share/man/man1',
+		INSTALLVENDORMAN1DIR => '$(PREFIX)/share/man/man1',
+		INSTALLMAN3DIR       => '$(PREFIX)/share/man/man3',
+		INSTALLSITEMAN3DIR   => '$(PREFIX)/share/man/man3',
+		INSTALLVENDORMAN3DIR => '$(PREFIX)/share/man/man3',
+		SYSCONFDIR           => '$(PREFIX)/etc/armadito-scheduler',
+		DATADIR              => '$(PREFIX)/share/armadito-scheduler',
+		LOCALSTATEDIR        => '$(PREFIX)/var/armadito-scheduler',
+	);
 
-    # allow variables defined on command line to override defaults
-    foreach my $name (keys %variables) {
-        $variables{$name} = $self->{ARGS}->{$name} if $self->{ARGS}->{$name};
-    }
+	# allow variables defined on command line to override defaults
+	foreach my $name ( keys %variables ) {
+		$variables{$name} = $self->{ARGS}->{$name} if $self->{ARGS}->{$name};
+	}
 
-    # get all standard MM variables definitions, and override them if needed
-    my @code = split(/\n/, $self->SUPER::constants(@_));
-    foreach my $line (@code) {
-        # Skip comments
-        next if $line =~ /^\s*#/;
-        # Skip everything which isn't a var assignment.
-        next unless $line =~ /^([A-Z0-9_]+) =/;
-        my $name = $1;
-        # skip variables we're not interested
-        next unless $variables{$name};
+	# get all standard MM variables definitions, and override them if needed
+	my @code = split( /\n/, $self->SUPER::constants(@_) );
+	foreach my $line (@code) {
 
-        $line = "$name = $variables{$name}";
-    }
+		# Skip comments
+		next if $line =~ /^\s*#/;
 
-    # add out own variables
-    foreach my $name (qw/SYSCONFDIR DATADIR LOCALSTATEDIR/) {
-        push @code, "$name = $variables{$name}";
-    }
+		# Skip everything which isn't a var assignment.
+		next unless $line =~ /^([A-Z0-9_]+) =/;
+		my $name = $1;
 
-    return join("\n", @code);
+		# skip variables we're not interested
+		next unless $variables{$name};
+
+		$line = "$name = $variables{$name}";
+	}
+
+	# add out own variables
+	foreach my $name (qw/SYSCONFDIR DATADIR LOCALSTATEDIR/) {
+		push @code, "$name = $variables{$name}";
+	}
+
+	return join( "\n", @code );
 }
 
 sub install {
-    my ($self) = @_;
-    my $install = $self->SUPER::install(@_);
+	my ($self) = @_;
+	my $install = $self->SUPER::install(@_);
 
-    # add dependency on data and configuration installation targets, and remove
-    # dependency on perlocal installation target
-    # depending on MakeMaker version, the line to match changes
-    $install =~ s/install :: pure_install doc_install/install :: pure_install config_install data_install/;
-    $install =~ s/install :: all pure_install doc_install/install :: all pure_install config_install data_install/;
+	# add dependency on data and configuration installation targets, and remove
+	# dependency on perlocal installation target
+	# depending on MakeMaker version, the line to match changes
+	$install =~ s/install :: pure_install doc_install/install :: pure_install config_install data_install/;
+	$install =~ s/install :: all pure_install doc_install/install :: all pure_install config_install data_install/;
 
-    # suppress all lines related to packlist file installation
-    $install =~ s/.*\.packlist \\\n//g;
+	# suppress all lines related to packlist file installation
+	$install =~ s/.*\.packlist \\\n//g;
 
-    # add data and configuration installation targets
-    $install .= <<'EOF';
+	# add data and configuration installation targets
+	$install .= <<'EOF';
 
 config_install :
 	install -d -m 755 $(DESTDIR)$(SYSCONFDIR)
@@ -141,19 +147,19 @@ config_install :
 data_install :
 	install -d -m 755 $(DESTDIR)$(DATADIR)
 EOF
-    return $install;
+	return $install;
 }
 
 # ensure binaries get modified to use configured directories (on Unix only)
 sub installbin {
-    my ($self) = @_;
-    my $installbin = $self->SUPER::installbin(@_);
+	my ($self) = @_;
+	my $installbin = $self->SUPER::installbin(@_);
 
-    return $installbin if $OSNAME eq 'MSWin32';
+	return $installbin if $OSNAME eq 'MSWin32';
 
-    $installbin =~ s|\t\$\(FIXIN\) (.*)\n|\t\$(FIXIN) $1\n\t\$(FINALIZE) $1\n|g;
+	$installbin =~ s|\t\$\(FIXIN\) (.*)\n|\t\$(FIXIN) $1\n\t\$(FINALIZE) $1\n|g;
 
-    $installbin .= <<'EOF';
+	$installbin .= <<'EOF';
 FINALIZE = $(ABSPERLRUN) -pi \
     -e 's|use lib .*|use lib "$(DATADIR)/lib";|;' \
     -e 's|confdir => .*|confdir => "$(SYSCONFDIR)",|;' \
@@ -162,5 +168,5 @@ FINALIZE = $(ABSPERLRUN) -pi \
     -e 's|vardir  => .*|vardir  => "$(LOCALSTATEDIR)",|' \
     --
 EOF
-    return $installbin;
+	return $installbin;
 }
