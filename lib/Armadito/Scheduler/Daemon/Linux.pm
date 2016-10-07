@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use base 'Armadito::Scheduler::Daemon';
+use POSIX ":sys_wait_h";
 
 sub new {
 	my ( $class, %params ) = @_;
@@ -16,20 +17,85 @@ sub run {
 	my ( $self, %params ) = @_;
 	$self = $self->SUPER::run(%params);
 
-	my $parent_pid = $$;
-	my $pid        = fork();
+	$self->waitUntilRoundZero();
+	$self->{logger}->info("RoundZero !");
 
-	if ( $pid == 0 ) {
-		$self->{logger}->debug2("Parent process PID : $parent_pid !");
-		$self->{logger}->debug2("Forked process PID : $$ !");
-
-		$self->waitUntilRoundZero();
-		$self->{logger}->info("RoundZero !");
-
-		$self->nextRound();
-	}
+	$self->start();
 
 	return $self;
+}
+
+sub execTask {
+	my ( $self, $task ) = @_;
+	$self->{logger}->info("Exec task $task->{name}");
+
+	# Exec only one same task at the same time
+	my %workers = %{ $self->{workers} };
+	if ( defined( $workers{ $task->{name} } ) ) {
+		return;
+	}
+
+	my $proc_id = fork();
+	if ( $proc_id == 0 ) {
+		sleep(300);
+
+		# Exec task here
+		exit(0);
+	}
+	else {
+		if ( defined($proc_id) ) {
+			$self->addWorker( $task, $proc_id );
+		}
+		else {
+			$self->{logger}->info("Error when trying to fork watchdog.");
+		}
+	}
+}
+
+sub waitForChild {
+	my ( $self, $key ) = @_;
+
+	my %workers    = %{ $self->{workers} };
+	my $worker_pid = $workers{$key}->{pid};
+
+	if ( $worker_pid > 0 ) {
+
+		# No blocking wait
+		my $res = waitpid( $worker_pid, WNOHANG );
+		sleep(0.1);
+
+		if ( $res == 0 ) {
+			$workers{$key}->{time_to_live}--;
+			if ( $workers{$key}->{time_to_live} <= 0 ) {
+				$self->killWorker($worker_pid);
+			}
+		}
+		else {
+			delete ${ $self->{workers} }{$key};
+		}
+	}
+}
+
+sub killWorker {
+	my ( $self, $pid ) = @_;
+
+	$self->{logger}->info("Try to kill process $pid \n");
+
+	eval { kill 9, $pid; };
+	if ($@) {
+		$self->{logger}->info("Cannot kill process $pid \n");
+	}
+}
+
+sub addWorker {
+	my ( $self, $task, $proc_id ) = @_;
+
+	${ $self->{workers} }{ $task->{name} } = {
+		proc_obj     => "",
+		pid          => $proc_id,
+		time_to_live => $task->{time_to_live},
+		task         => $task
+	};
 }
 1;
 

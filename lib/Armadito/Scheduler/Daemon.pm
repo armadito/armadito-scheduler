@@ -12,7 +12,7 @@ sub new {
 	my $self = {
 		logger => $params{logger} || Armadito::Scheduler::Logger->new(),
 		config => $params{config},
-		workers => []
+		workers => {}
 	};
 
 	$self->{id}             = 5;
@@ -28,14 +28,16 @@ sub run {
 	return $self;
 }
 
-sub nextRound {
-	my ( $self, %params ) = @_;
+sub start {
+	my ($self) = @_;
 
 ROUNDSTART:
 	my $start = [gettimeofday];
 
+	$self->waitForChilds();
+
 	#$self->waitRandomly( max => int( $self->{round_duration} / 2 ) );
-	$self->runTasks();
+	$self->execTasks();
 
 	my $elapsed = tv_interval( $start, [gettimeofday] );
 	$self->waitUntilNextRound($elapsed);
@@ -43,7 +45,15 @@ ROUNDSTART:
 	goto ROUNDSTART;
 }
 
-sub runTasks {
+sub waitForChilds {
+	my ($self) = @_;
+
+	foreach my $key ( keys( %{ $self->{workers} } ) ) {
+		$self->waitForChild($key);
+	}
+}
+
+sub execTasks {
 	my ( $self, %params ) = @_;
 	my @tasks = @{ $self->{config}->{tasks} };
 
@@ -53,9 +63,7 @@ sub runTasks {
 		$self->{logger}->info( $task->{name} . " rounds_to_wait=" . $task->{rounds_to_wait} );
 
 		if ( $task->{rounds_to_wait} < 1 ) {
-			$self->{logger}->info("Run task $task->{name}");
-
-			#&createLinuxProcess($task);
+			$self->execTask($task);
 			$task->{rounds_to_wait} = $task->{frequency} - 1;
 		}
 		else {
