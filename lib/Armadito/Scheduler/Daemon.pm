@@ -17,6 +17,7 @@ sub new {
 
 	$self->{id}             = 5;
 	$self->{round_duration} = 10;
+	$self->{sleep_delay}    = 0;
 
 	bless $self, $class;
 	return $self;
@@ -107,10 +108,15 @@ sub waitRandomly {
 sub waitUntilNextRound {
 	my ( $self, $elapsed_time ) = @_;
 
-	my $sleep_duration = $self->{round_duration} - $elapsed_time;
+	my $sleep_duration = $self->{round_duration} - $elapsed_time - $self->{sleep_delay};
 
-	$self->{logger}->info( "sleep_duration : " . $sleep_duration );
-	sleep($sleep_duration);
+	if ( $sleep_duration <= 0 ) {
+		$self->{sleep_delay} = ( -$sleep_duration );
+	}
+	else {
+		my $real_sleep = sleep($sleep_duration);
+		$self->{sleep_delay} = $real_sleep - $sleep_duration;
+	}
 }
 
 1;
