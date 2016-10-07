@@ -40,6 +40,45 @@ sub run {
 	return $self;
 }
 
+sub getRoundsToWait {
+	my ( $self, $daemon ) = @_;
+
+	my $round_to_be   = $self->getRoundToBe($daemon);
+	my $current_round = $self->getCurrentRound($daemon);
+
+	my $rounds_to_wait = $round_to_be - $current_round;
+	if ( $rounds_to_wait < 0 ) {
+		$rounds_to_wait = $self->{frequency} + $rounds_to_wait;
+	}
+
+	return $rounds_to_wait;
+}
+
+sub getRoundsSince1970 {
+	my ( $self, $round_duration ) = @_;
+
+	my $now = time();
+	my $rounds_since_1970 = sprintf( "%.0f", $now / $round_duration );
+
+	return $rounds_since_1970;
+}
+
+sub getCurrentRound {
+	my ( $self, $daemon ) = @_;
+
+	my $current_round = $self->getRoundsSince1970( $daemon->{round_duration} ) % $self->{frequency};
+
+	return $current_round;
+}
+
+sub getRoundToBe {
+	my ( $self, $daemon ) = @_;
+
+	my $round_to_be = $daemon->{id} % $self->{frequency};
+
+	return $round_to_be;
+}
+
 1;
 
 __END__
