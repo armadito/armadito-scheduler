@@ -5,6 +5,7 @@ use warnings;
 
 use base 'Armadito::Scheduler::Daemon';
 use POSIX ":sys_wait_h";
+use Try::Tiny;
 
 sub new {
 	my ( $class, %params ) = @_;
@@ -37,9 +38,7 @@ sub execTask {
 
 	my $proc_id = fork();
 	if ( $proc_id == 0 ) {
-		sleep(300);
-
-		# Exec task here
+		$self->execTaskCmd($task);
 		exit(0);
 	}
 	else {
@@ -50,6 +49,18 @@ sub execTask {
 			$self->{logger}->info("Error when trying to fork watchdog.");
 		}
 	}
+}
+
+sub execTaskCmd {
+	my ( $self, $task ) = @_;
+	try {
+		system "sg " . $task->{user} . " -c '" . $task->{cmd} . "'";
+	}
+	catch {
+		print STDERR "execTaskCmd Failure:\n";
+		print STDERR $_;
+		exit(1);
+	};
 }
 
 sub waitForChild {
