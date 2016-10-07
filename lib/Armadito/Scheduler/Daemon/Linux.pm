@@ -23,9 +23,10 @@ sub run {
 		$self->{logger}->debug2("Parent process PID : $parent_pid !");
 		$self->{logger}->debug2("Forked process PID : $$ !");
 
-		$self->waitUntilZeroSlot();
-		$self->waitRandomly( max => int( $self->{round_duration} / 2 ) );
-		$self->doRound();
+		$self->waitUntilRoundZero();
+		$self->{logger}->info("RoundZero !");
+
+		$self->nextRound();
 	}
 
 	return $self;

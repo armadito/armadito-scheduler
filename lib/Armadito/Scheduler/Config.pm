@@ -9,6 +9,7 @@ use Getopt::Long;
 use UNIVERSAL::require;
 use Armadito::Scheduler::Task;
 use Armadito::Scheduler::Tools::File qw( readFile );
+use Data::Dumper;
 
 my $default = {
 	'conf-reload-interval' => 0,
@@ -154,8 +155,8 @@ sub _parseConfFile {
 	while ( defined( $lines[$i] ) ) {
 		$lines[$i] =~ s/^\s*#.+//;
 
-		if ( $lines[$i] =~ /^\s*{/ ) {
-			$i = $self->_parseTaskConfBlock( \@lines, $i );
+		if ( $lines[$i] =~ /^\s*task\s*{/ ) {
+			$i = $self->_parseTaskConfBlock( \@lines, $i + 1 );
 		}
 		else {
 			my ( $key, $val ) = $self->_parseConfLine( $lines[$i] );
@@ -175,11 +176,9 @@ sub _parseTaskConfBlock {
 	my $i     = $block_offset;
 
 	while ( $lines[$i] !~ /^\s*}/ ) {
+		$lines[$i] =~ s/^\s*#.+//;
 		my ( $key, $val ) = $self->_parseConfLine( $lines[$i] );
-
-		if ( $key =~ /^task\./ ) {
-			$task->{$key} = $val;
-		}
+		$task->{$key} = $val;
 		$i++;
 	}
 
@@ -193,7 +192,7 @@ sub _addNewTask {
 	my $SchedulerTask = new Armadito::Scheduler::Task(
 		name         => $task->{name},
 		cmd          => $task->{cmd},
-		freq         => $task->{freq},
+		frequency    => $task->{frequency},
 		time_to_live => $task->{time_to_live},
 		user         => $task->{user}
 	);
@@ -207,7 +206,7 @@ sub _parseConfLine {
 	my $key = "";
 	my $val = "";
 
-	if ( $line =~ /([\w-]+)\s*=\s*(.+)/ ) {
+	if ( $line =~ /^\s*([\w-]+)\s*?=\s*(.+)/ ) {
 		$key = $1;
 		$val = $2;
 

@@ -40,20 +40,6 @@ sub run {
 	return $self;
 }
 
-sub getRoundsToWait {
-	my ( $self, $daemon ) = @_;
-
-	my $round_to_be   = $self->getRoundToBe($daemon);
-	my $current_round = $self->getCurrentRound($daemon);
-
-	my $rounds_to_wait = $round_to_be - $current_round;
-	if ( $rounds_to_wait < 0 ) {
-		$rounds_to_wait = $self->{frequency} + $rounds_to_wait;
-	}
-
-	return $rounds_to_wait;
-}
-
 sub getRoundsSince1970 {
 	my ( $self, $round_duration ) = @_;
 
@@ -64,17 +50,17 @@ sub getRoundsSince1970 {
 }
 
 sub getCurrentRound {
-	my ( $self, $daemon ) = @_;
+	my ( $self, $round_duration ) = @_;
 
-	my $current_round = $self->getRoundsSince1970( $daemon->{round_duration} ) % $self->{frequency};
+	my $current_round = $self->getRoundsSince1970($round_duration) % $self->{frequency};
 
 	return $current_round;
 }
 
 sub getRoundToBe {
-	my ( $self, $daemon ) = @_;
+	my ( $self, $id ) = @_;
 
-	my $round_to_be = $daemon->{id} % $self->{frequency};
+	my $round_to_be = $id % $self->{frequency};
 
 	return $round_to_be;
 }
