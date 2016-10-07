@@ -10,10 +10,11 @@ sub new {
 
 	my $self = {
 		logger => $params{logger} || Armadito::Scheduler::Logger->new(),
-		config => $params{config}
+		config => $params{config},
+		workers => []
 	};
 
-	$self->{loop_duration} = 60;
+	$self->{round_duration} = 60;
 
 	bless $self, $class;
 	return $self;
@@ -25,6 +26,12 @@ sub run {
 	return $self;
 }
 
+sub doRound {
+	my ( $self, %params ) = @_;
+
+	$self->{logger}->debug2("ROUND!\n");
+}
+
 sub waitUntilZeroSlot {
 	my ($self) = @_;
 
@@ -33,9 +40,15 @@ sub waitUntilZeroSlot {
 		sleep(0.01);
 		( $now_sec, $now_micro ) = gettimeofday;
 
-	} while ( $now_sec % $self->{loop_duration} );
+	} while ( $now_sec % $self->{round_duration} );
 }
 
+sub waitRandomly {
+	my ( $self, %params ) = @_;
+
+	my $waiting_duration = int( rand( $params{max} ) );
+	sleep($waiting_duration);
+}
 1;
 
 __END__

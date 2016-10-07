@@ -24,7 +24,8 @@ sub run {
 		$self->{logger}->debug2("Forked process PID : $$ !");
 
 		$self->waitUntilZeroSlot();
-		$self->{logger}->info("ZERO SLOT");
+		$self->waitRandomly( max => int( $self->{round_duration} / 2 ) );
+		$self->doRound();
 	}
 
 	return $self;

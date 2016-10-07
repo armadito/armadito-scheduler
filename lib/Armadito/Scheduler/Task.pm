@@ -26,12 +26,12 @@ sub new {
 
 sub setLogger {
 	my ( $self, $logger ) = @_;
-    $self->{logger} = $logger;
+	$self->{logger} = $logger;
 }
 
 sub setConfig {
 	my ( $self, $config ) = @_;
-    $self->{config} = $config;
+	$self->{config} = $config;
 }
 
 sub run {
