@@ -66,6 +66,8 @@ if ($options->{'conf-file'}) {
     }
 }
 
+die "Must run as root.\n" if $> != 0;
+
 my $scheduler = Armadito::Scheduler->new(%setup);
 my $config = {};
 
