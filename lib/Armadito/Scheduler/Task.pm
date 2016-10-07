@@ -9,13 +9,15 @@ sub new {
 	my ( $class, %params ) = @_;
 
 	my $self = {
-        name    => $params{name},
-        cmd     => $params{cmd},
-        freq    => $params{freq},
-        timeout => $params{timeout},
-        user    => $params{user},
-        logger  => undef,
-        config  => undef
+		name               => $params{name},
+		cmd                => $params{cmd},
+		frequency          => $params{frequency},
+		time_to_live       => $params{time_to_live},
+		user               => $params{user},
+		rounds_to_wait     => 0,
+		exec_in_this_round => 0,
+		logger             => undef,
+		config             => undef
 	};
 
 	bless $self, $class;

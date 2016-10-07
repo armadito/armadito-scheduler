@@ -191,11 +191,11 @@ sub _addNewTask {
 	my ( $self, $task ) = @_;
 
 	my $SchedulerTask = new Armadito::Scheduler::Task(
-		name    => $task->{name},
-		cmd     => $task->{cmd},
-		freq    => $task->{freq},
-		timeout => $task->{timeout},
-		user    => $task->{user}
+		name         => $task->{name},
+		cmd          => $task->{cmd},
+		freq         => $task->{freq},
+		time_to_live => $task->{time_to_live},
+		user         => $task->{user}
 	);
 
 	push( @{ $self->{tasks} }, $SchedulerTask );
